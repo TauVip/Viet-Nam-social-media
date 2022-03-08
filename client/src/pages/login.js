@@ -1,20 +1,29 @@
 import { useState } from 'react'
+import { useDispatch } from 'react-redux'
+import { Link } from 'react-router-dom'
+import { login } from '../redux/actions/authAction'
 
 const Login = () => {
   const initialState = { email: '', password: '' }
   const [userData, setUserData] = useState(initialState)
   const { email, password } = userData
 
+  const dispatch = useDispatch()
+
   const handleChangeInput = e => {
     const { name, value } = e.target
     setUserData({ ...userData, [name]: value })
   }
-  console.log(userData)
+
+  const handleSubmit = e => {
+    e.preventDefault()
+    dispatch(login(userData))
+  }
 
   return (
     <div className='auth_page'>
-      <form>
-        <h3 className='text-uppercase'>V-Network</h3>
+      <form onSubmit={handleSubmit}>
+        <h3 className='text-uppercase text-center mb-4'>V-Network</h3>
         <div className='form-group'>
           <label htmlFor='exampleInputEmail1'>Email address</label>
           <input
@@ -24,6 +33,7 @@ const Login = () => {
             name='email'
             aria-describedby='emailHelp'
             onChange={handleChangeInput}
+            value={email}
           />
           <small id='emailHelp' className='form-text text-muted'>
             We'll never share your email with anyone else.
@@ -37,11 +47,23 @@ const Login = () => {
             id='exampleInputPassword1'
             name='password'
             onChange={handleChangeInput}
+            value={password}
           />
         </div>
-        <button type='submit' className='btn btn-primary'>
-          Submit
+        <button
+          type='submit'
+          className='btn btn-dark w-100'
+          disabled={email && password ? false : true}
+        >
+          Login
         </button>
+
+        <p className='my-2'>
+          You don't have an account?{' '}
+          <Link to='/register' style={{ color: 'crimson' }}>
+            Register Now
+          </Link>
+        </p>
       </form>
     </div>
   )
