@@ -1,6 +1,6 @@
-import { useState } from 'react'
-import { useDispatch } from 'react-redux'
-import { Link } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { Link, useNavigate } from 'react-router-dom'
 import { login } from '../redux/actions/authAction'
 
 const Login = () => {
@@ -8,7 +8,15 @@ const Login = () => {
   const [userData, setUserData] = useState(initialState)
   const { email, password } = userData
 
+  const [typePass, setTypePass] = useState(false)
+
+  const { auth } = useSelector(state => state)
   const dispatch = useDispatch()
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    if (auth.token) navigate('/')
+  }, [auth.token, navigate])
 
   const handleChangeInput = e => {
     const { name, value } = e.target
@@ -41,14 +49,19 @@ const Login = () => {
         </div>
         <div className='form-group'>
           <label htmlFor='exampleInputPassword1'>Password</label>
-          <input
-            type='password'
-            className='form-control'
-            id='exampleInputPassword1'
-            name='password'
-            onChange={handleChangeInput}
-            value={password}
-          />
+          <div className='pass'>
+            <input
+              type={typePass ? 'text' : 'password'}
+              className='form-control'
+              id='exampleInputPassword1'
+              name='password'
+              onChange={handleChangeInput}
+              value={password}
+            />
+            <small onClick={() => setTypePass(!typePass)}>
+              {typePass ? 'Hide' : 'Show'}
+            </small>
+          </div>
         </div>
         <button
           type='submit'
@@ -57,7 +70,6 @@ const Login = () => {
         >
           Login
         </button>
-
         <p className='my-2'>
           You don't have an account?{' '}
           <Link to='/register' style={{ color: 'crimson' }}>

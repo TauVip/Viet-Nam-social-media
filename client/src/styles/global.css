@@ -32,4 +32,12 @@ code {
   margin: auto;
 }
 
-@import url('./styles/auth.css');
+img {
+  object-fit: cover;
+}
+
+@import url('./auth.css');
+@import url('./loading.css');
+@import url('./avatar.css');
+@import url('./header.css');
+@import url('./profile.css');

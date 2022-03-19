@@ -1,5 +1,5 @@
 import ReactDOM from 'react-dom'
-import './index.css'
+import './styles/global.css'
 import App from './App'
 import DataProvider from './redux/store'
 
