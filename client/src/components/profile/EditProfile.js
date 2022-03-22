@@ -1,7 +1,10 @@
-import { useState } from 'react'
-import { useSelector } from 'react-redux'
+import { useEffect, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { GLOBALTYPES } from '../../redux/actions/globalTypes'
+import { updateProfileUser } from '../../redux/actions/profileAction'
+import { checkImage } from '../../utils/imageUpload'
 
-const EditProfile = ({ user, setOnEdit }) => {
+const EditProfile = ({ setOnEdit }) => {
   const initState = {
     fullname: '',
     mobile: '',
@@ -16,15 +19,32 @@ const EditProfile = ({ user, setOnEdit }) => {
   const [avatar, setAvatar] = useState('')
 
   const { auth, theme } = useSelector(state => state)
+  const dispatch = useDispatch()
+
+  useEffect(() => {
+    setUserData(auth.user)
+  }, [auth.user])
 
   const changeAvatar = e => {
     const file = e.target.files[0]
+    const err = checkImage(file)
+    if (err)
+      return dispatch({
+        type: GLOBALTYPES.ALERT,
+        payload: { error: err }
+      })
+
     setAvatar(file)
   }
 
   const handleInput = e => {
     const { name, value } = e.target
     setUserData({ ...userData, [name]: value })
+  }
+
+  const handleSubmit = e => {
+    e.preventDefault()
+    dispatch(updateProfileUser({ userData, avatar, auth }))
   }
 
   return (
@@ -36,7 +56,7 @@ const EditProfile = ({ user, setOnEdit }) => {
         Close
       </button>
 
-      <form>
+      <form onSubmit={handleSubmit}>
         <div className='info_avatar'>
           <img
             src={avatar ? URL.createObjectURL(avatar) : auth.user.avatar}
@@ -56,7 +76,7 @@ const EditProfile = ({ user, setOnEdit }) => {
           </span>
         </div>
 
-        <div className='form_group'>
+        <div className='form-group'>
           <label htmlFor='fullname'>Full Name</label>
           <div className='position-relative'>
             <input
@@ -134,6 +154,7 @@ const EditProfile = ({ user, setOnEdit }) => {
           <select
             name='gender'
             id='gender'
+            value={gender}
             className='custom-select text-capitalize'
             onChange={handleInput}
           >

@@ -12,6 +12,7 @@ app.use(cookieParser())
 // Routes
 app.use('/api', require('./routes/authRouter'))
 app.use('/api', require('./routes/userRouter'))
+app.use('/api', require('./routes/postRouter'))
 
 const URI = process.env.MONGODB_URL
 mongoose.connect(URI, null, err => {
@@ -22,4 +23,4 @@ mongoose.connect(URI, null, err => {
 const port = process.env.PORT || 5000
 app.listen(port, () => console.log('Server is running on port', port))
 
-// MERN Stack - Build a social media app (instagram , facebook, twitter clone) - #8 User Info Profile | 23:11/45:43
+// MERN Stack - Build a social media app (instagram , facebook, twitter clone) - #15 status(3) | 12:09/31:35
