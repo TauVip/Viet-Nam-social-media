@@ -5,12 +5,30 @@ const postCtrl = {
     try {
       const { content, images } = req.body
 
-      const newPost = new Posts({ content, images })
+      if (images.length === 0)
+        return res.status(400).json({ msg: 'Please add your photo.' })
+
+      const newPost = new Posts({ content, images, user: req.user._id })
       await newPost.save()
 
       res.json({
         msg: 'Create Post!',
         newPost
+      })
+    } catch (err) {
+      return res.status(500).json({ msg: err.message })
+    }
+  },
+  getPosts: async (req, res) => {
+    try {
+      const posts = await Posts.find({
+        user: [...req.user.following, req.user._id]
+      })
+
+      res.json({
+        msg: 'Success!',
+        result: posts.length,
+        posts
       })
     } catch (err) {
       return res.status(500).json({ msg: err.message })

@@ -14,7 +14,9 @@ export const imageUpload = async images => {
   let imgArr = []
   for (const item of images) {
     const formData = new FormData()
-    formData.append('file', item)
+
+    if (item.camera) formData.append('file', item.camera)
+    else formData.append('file', item)
 
     formData.append('upload_preset', 'efxjficn')
     formData.append('cloud_name', 'devat-channel')
@@ -35,4 +37,6 @@ export const imageUpload = async images => {
 /*
 1. https://res.cloudinary.com/devat-channel/image/upload/v1647684662/v-network/kdwvzufmxpespsiqcysw.png
 2. https://res.cloudinary.com/devat-channel/image/upload/v1647759114/v-network/wnjmawoama0ofz9sas8n.jpg
+3. https://res.cloudinary.com/devat-channel/image/upload/v1648015712/v-network/vndz100jjsud6dmlztmg.png
+4. https://res.cloudinary.com/devat-channel/image/upload/v1648016351/v-network/dyyjrpwgkztiqicz4m9o.png
 */

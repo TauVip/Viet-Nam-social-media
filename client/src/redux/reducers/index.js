@@ -4,5 +4,13 @@ import alert from './alertReducer'
 import theme from './themeReducer'
 import profile from './profileReducer'
 import status from './statusReducers'
+import homePost from './postReducer'
 
-export default combineReducers({ auth, alert, theme, profile, status })
+export default combineReducers({
+  auth,
+  alert,
+  theme,
+  profile,
+  status,
+  homePost
+})
