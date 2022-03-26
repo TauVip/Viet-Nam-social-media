@@ -23,4 +23,4 @@ mongoose.connect(URI, null, err => {
 const port = process.env.PORT || 5000
 app.listen(port, () => console.log('Server is running on port', port))
 
-// MERN Stack - Build a social media app (instagram , facebook, twitter clone) - #16 Get Posts | 10:20/28:08
+// MERN Stack - Build a social media app (instagram , facebook, twitter clone) - #18 Like Post | 18:23/34:10

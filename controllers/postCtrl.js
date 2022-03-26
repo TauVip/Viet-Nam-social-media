@@ -24,12 +24,47 @@ const postCtrl = {
       const posts = await Posts.find({
         user: [...req.user.following, req.user._id]
       })
+        .sort('-createdAt')
+        .populate('user likes', 'avatar username fullname')
 
       res.json({
         msg: 'Success!',
         result: posts.length,
         posts
       })
+    } catch (err) {
+      return res.status(500).json({ msg: err.message })
+    }
+  },
+  updatePost: async (req, res) => {
+    try {
+      const { content, images } = req.body
+
+      const post = await Posts.findOneAndUpdate(
+        { _id: req.params.id },
+        { content, images }
+      ).populate('user likes', 'avatar username fullname')
+
+      res.json({
+        msg: 'Updated Post!',
+        newPost: { ...post._doc, content, images }
+      })
+    } catch (err) {
+      return res.status(500).json({ msg: err.message })
+    }
+  },
+  likePost: async (req, res) => {
+    try {
+      const post = await Posts.find({ _id: req.params.id, likes: req.user._id })
+      console.log(post)
+
+      await Posts.findOneAndUpdate(
+        { _id: req.params.id },
+        { $push: { likes: req.user._id } },
+        { new: true }
+      )
+
+      res.json({ msg: 'Liked Post!' })
     } catch (err) {
       return res.status(500).json({ msg: err.message })
     }
