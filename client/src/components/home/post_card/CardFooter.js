@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
 import Send from '../../../images/send.svg'
-import { likePost } from '../../../redux/actions/postAction'
+import { likePost, unLikePost } from '../../../redux/actions/postAction'
 import LikeButton from '../../LikeButton'
 
 const CardFooter = ({ post }) => {
@@ -19,12 +19,20 @@ const CardFooter = ({ post }) => {
   const handleLike = async () => {
     if (loadLike) return
     setIsLike(true)
+
     setLoadLike(true)
     await dispatch(likePost({ post, auth }))
     setLoadLike(false)
   }
 
-  const handleUnLike = () => setIsLike(false)
+  const handleUnLike = async () => {
+    if (loadLike) return
+    setIsLike(false)
+
+    setLoadLike(true)
+    await dispatch(unLikePost({ post, auth }))
+    setLoadLike(false)
+  }
 
   return (
     <div className='card_footer'>

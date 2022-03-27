@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useParams } from 'react-router-dom'
+import { GLOBALTYPES } from '../../redux/actions/globalTypes'
 import { getProfileUsers } from '../../redux/actions/profileAction'
 import Avatar from '../Avatar'
 import FollowBtn from '../FollowBtn'
@@ -27,6 +28,12 @@ const Info = () => {
       setUserData(newData)
     }
   }, [id, auth, dispatch, profile.users])
+
+  useEffect(() => {
+    if (showFollowers || showFollowing || onEdit)
+      dispatch({ type: GLOBALTYPES.MODAL, payload: true })
+    else dispatch({ type: GLOBALTYPES.MODAL, payload: false })
+  }, [dispatch, onEdit, showFollowers, showFollowing])
 
   return (
     <div className='info'>
