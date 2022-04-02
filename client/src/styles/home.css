@@ -34,8 +34,8 @@
 }
 .posts .card_header .dropdown-menu {
   position: absolute;
-  left: inherit !important;
   right: 0;
+  left: inherit;
 }
 .posts .card_header .dropdown-item {
   display: flex;

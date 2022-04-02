@@ -59,7 +59,7 @@ const CardFooter = ({ post }) => {
           {post.likes.length} likes
         </h6>
         <h6 style={{ padding: '0 25px', cursor: 'pointer' }}>
-          {post.comment.length} comments
+          {post.comments.length} comments
         </h6>
       </div>
     </div>
