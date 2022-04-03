@@ -3,30 +3,43 @@ import { imageUpload } from '../../utils/imageUpload'
 import { DeleteData, GLOBALTYPES } from './globalTypes'
 
 export const PROFILE_TYPES = {
-  LOADING: 'LOADING',
-  GET_USER: 'GET_USER',
+  LOADING: 'LOADING_PROFILE',
+  GET_USER: 'GET_PROFILE_USER',
   FOLLOW: 'FOLLOW',
-  UNFOLLOW: 'UNFOLLOW'
+  UNFOLLOW: 'UNFOLLOW',
+  GET_ID: 'GET_PROFILE_ID',
+  GET_POSTS: 'GET_PROFILE_POSTS'
 }
 
 export const getProfileUsers =
-  ({ users, id, auth }) =>
+  ({ id, auth }) =>
   async dispatch => {
-    if (users.every(user => user._id !== id)) {
-      try {
-        dispatch({ type: PROFILE_TYPES.LOADING, payload: true })
-        const res = await getDataAPI(`/user/${id}`, auth.token)
-        dispatch({
-          type: PROFILE_TYPES.GET_USER,
-          payload: res.data
-        })
-        dispatch({ type: PROFILE_TYPES.LOADING, payload: false })
-      } catch (err) {
-        dispatch({
-          type: GLOBALTYPES.ALERT,
-          payload: { error: err.response.data.msg }
-        })
-      }
+    dispatch({ type: PROFILE_TYPES.GET_ID, payload: id })
+
+    try {
+      dispatch({ type: PROFILE_TYPES.LOADING, payload: true })
+      const res = getDataAPI(`/user/${id}`, auth.token)
+      const res1 = getDataAPI(`/user_posts/${id}`, auth.token)
+
+      const users = await res
+      const posts = await res1
+
+      dispatch({
+        type: PROFILE_TYPES.GET_USER,
+        payload: users.data
+      })
+
+      dispatch({
+        type: PROFILE_TYPES.GET_POSTS,
+        payload: { ...posts.data, _id: id, page: 2 }
+      })
+
+      dispatch({ type: PROFILE_TYPES.LOADING, payload: false })
+    } catch (err) {
+      dispatch({
+        type: GLOBALTYPES.ALERT,
+        payload: { error: err.response.data.msg }
+      })
     }
   }
 
