@@ -45,6 +45,7 @@ img {
 @import url('./status_modal.css');
 @import url('./comments.css');
 @import url('./post_thumb.css');
+@import url('./message.css');
 
 @media (max-width: 768px) {
   .header .menu {
