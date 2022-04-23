@@ -7,7 +7,7 @@ import LoadMoreBtn from '../LoadMoreBtn'
 import { POST_TYPES } from '../../redux/actions/postAction'
 
 const Posts = () => {
-  const { homePosts, auth } = useSelector(state => state)
+  const { homePosts, auth, theme } = useSelector(state => state)
   const dispatch = useDispatch()
 
   const [load, setLoad] = useState(false)
@@ -30,7 +30,7 @@ const Posts = () => {
   return (
     <div className='posts'>
       {homePosts.posts.map(post => (
-        <PostCard key={post._id} post={post} />
+        <PostCard key={post._id} post={post} theme={theme} />
       ))}
 
       {load && <img src={LoadIcon} alt='loading' className='d-block mx-auto' />}

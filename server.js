@@ -23,6 +23,7 @@ app.use('/api', require('./routes/userRouter'))
 app.use('/api', require('./routes/postRouter'))
 app.use('/api', require('./routes/commentRouter'))
 app.use('/api', require('./routes/notifyRouter'))
+app.use('/api', require('./routes/messageRouter'))
 
 const URI = process.env.MONGODB_URL
 mongoose.connect(URI, null, err => {
@@ -33,4 +34,4 @@ mongoose.connect(URI, null, err => {
 const port = process.env.PORT || 5000
 http.listen(port, () => console.log('Server is running on port', port))
 
-// MERN Stack - Build a social media app (instagram , facebook, twitter clone) - #33 Message | 38:10 / 49:37
+// MERN Stack - Build a social media app (instagram , facebook, twitter clone) - #38 Delete Message | 26:34 / 32:32

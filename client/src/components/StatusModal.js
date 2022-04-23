@@ -2,6 +2,8 @@ import { useState, useRef, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { GLOBALTYPES } from '../redux/actions/globalTypes'
 import { createPost, updatePost } from '../redux/actions/postAction'
+import { imageShow, videoShow } from '../utils/mediaShow'
+import Icons from './Icons'
 
 const StatusModal = () => {
   const { auth, theme, status, socket } = useSelector(state => state)
@@ -23,8 +25,8 @@ const StatusModal = () => {
     files.forEach(file => {
       if (!file) return (err = 'File does not exist.')
 
-      if (file.type !== 'image/jpeg' && file.type !== 'image/png')
-        return (err = 'Image format is incorrect')
+      if (file.size > 1024 * 1024 * 5)
+        return (err = 'The image/video largest is 5mb.')
 
       return newImages.push(file)
     })
@@ -116,23 +118,36 @@ const StatusModal = () => {
             value={content}
             placeholder={`${auth.user.username}, what are you thinking?`}
             onChange={e => setContent(e.target.value)}
+            style={{
+              filter: theme ? 'invert(1)' : 'invert(0)',
+              color: theme ? 'white' : '#111',
+              background: theme ? 'rgba(0,0,0,0.3)' : ''
+            }}
           />
+
+          <div className='d-flex'>
+            <div className='flex-fill'></div>
+            <Icons setContent={setContent} content={content} theme={theme} />
+          </div>
 
           <div className='show_images'>
             {images.map((img, index) => (
               <div key={index} id='file_img'>
-                <img
-                  src={
-                    img.camera
-                      ? img.camera
-                      : img.url
-                      ? img.url
-                      : URL.createObjectURL(img)
-                  }
-                  alt='images'
-                  className='img-thumbnail'
-                  style={{ filter: theme ? 'invert(1)' : 'invert(0)' }}
-                />
+                {img.camera ? (
+                  imageShow(img.camera, theme)
+                ) : img.url ? (
+                  <>
+                    {img.url.match(/video/i)
+                      ? videoShow(img.url, theme)
+                      : imageShow(img.url, theme)}
+                  </>
+                ) : (
+                  <>
+                    {img.type.match(/video/i)
+                      ? videoShow(URL.createObjectURL(img), theme)
+                      : imageShow(URL.createObjectURL(img), theme)}
+                  </>
+                )}
                 <span onClick={() => deleteImages(index)}>&times;</span>
               </div>
             ))}
@@ -168,7 +183,7 @@ const StatusModal = () => {
                     name='file'
                     id='file'
                     multiple
-                    accept='image/*'
+                    accept='image/*,video/*'
                     onChange={handleChangeImages}
                   />
                 </div>
