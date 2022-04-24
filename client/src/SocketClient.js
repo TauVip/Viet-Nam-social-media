@@ -17,15 +17,15 @@ const spawnNotification = (body, icon, url, title) => {
 }
 
 const SocketClient = () => {
-  const { auth, socket, notify } = useSelector(state => state)
+  const { auth, socket, notify, online } = useSelector(state => state)
   const dispatch = useDispatch()
 
   const audioRef = useRef()
 
   // joinUser
   useEffect(() => {
-    socket.emit('joinUser', auth.user._id)
-  }, [auth.user._id, socket])
+    socket.emit('joinUser', auth.user)
+  }, [auth.user, socket])
 
   // Likes
   useEffect(() => {
@@ -80,7 +80,6 @@ const SocketClient = () => {
     socket.on('createNotifyToClient', msg => {
       dispatch({ type: NOTIFY_TYPES.CREATE_NOTIFY, payload: msg })
 
-      console.log(msg)
       if (notify.sound) audioRef.current.play()
       spawnNotification(
         msg.user.username + ' ' + msg.text,
@@ -104,9 +103,47 @@ const SocketClient = () => {
   useEffect(() => {
     socket.on('addMessageToClient', msg => {
       dispatch({ type: MESS_TYPES.ADD_MESSAGE, payload: msg })
+      dispatch({
+        type: MESS_TYPES.ADD_USER,
+        payload: {
+          ...msg.user,
+          text: msg.text,
+          media: msg.media
+        }
+      })
     })
 
     return () => socket.off('addMessageToClient')
+  }, [dispatch, socket])
+
+  // Check User Online / Offline
+  useEffect(() => {
+    socket.emit('checkUserOnline', auth.user)
+  }, [auth.user, socket])
+  useEffect(() => {
+    socket.on('checkUserOnlineToMe', data => {
+      data.forEach(item => {
+        if (!online.includes(item.id))
+          dispatch({ type: GLOBALTYPES.ONLINE, payload: item.id })
+      })
+    })
+
+    return () => socket.off('checkUserOnlineToMe')
+  }, [dispatch, online, socket])
+  useEffect(() => {
+    socket.on('checkUserOnlineToClient', id => {
+      if (!online.includes(id))
+        dispatch({ type: GLOBALTYPES.ONLINE, payload: id })
+    })
+
+    return () => socket.off('checkUserOnlineToClient')
+  }, [dispatch, online, socket])
+  useEffect(() => {
+    socket.on('CheckUserOffline', id =>
+      dispatch({ type: GLOBALTYPES.OFFLINE, payload: id })
+    )
+
+    return () => socket.off('CheckUserOffline')
   }, [dispatch, socket])
 
   return (

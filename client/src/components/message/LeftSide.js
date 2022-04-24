@@ -2,16 +2,13 @@ import { useEffect, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate, useParams } from 'react-router-dom'
 import { GLOBALTYPES } from '../../redux/actions/globalTypes'
-import {
-  addUser,
-  getConversations,
-  getMessages
-} from '../../redux/actions/messageAction'
+import { getConversations, MESS_TYPES } from '../../redux/actions/messageAction'
 import { getDataAPI } from '../../utils/fetchData'
 import UserCard from '../UserCard'
 
 const LeftSide = () => {
-  const { auth, message } = useSelector(state => state)
+  const { auth, message, online } = useSelector(state => state)
+  console.log(auth, message)
   const dispatch = useDispatch()
   const navigate = useNavigate()
   const { id } = useParams()
@@ -39,7 +36,10 @@ const LeftSide = () => {
   const handleAddUser = user => {
     setSearch('')
     setSearchUsers([])
-    dispatch(addUser({ user, message }))
+    dispatch({
+      type: MESS_TYPES.ADD_USER,
+      payload: { ...user, text: '', media: [] }
+    })
     return navigate(`/message/${user._id}`)
   }
 
@@ -69,6 +69,12 @@ const LeftSide = () => {
     if (message.resultUsers >= (page - 1) * 9 && page > 1)
       dispatch(getConversations({ auth, page }))
   }, [auth, dispatch, message.resultUsers, page])
+
+  // Check User Online - Offline
+  useEffect(() => {
+    if (message.firstLoad)
+      dispatch({ type: MESS_TYPES.CHECK_ONLINE_OFFLINE, payload: online })
+  }, [dispatch, message.firstLoad, online])
 
   return (
     <>
@@ -106,7 +112,13 @@ const LeftSide = () => {
                 onClick={() => handleAddUser(user)}
               >
                 <UserCard user={user} msg={true}>
-                  <i className='fas fa-circle' />
+                  {user.online ? (
+                    <i className='fas fa-circle text-success' />
+                  ) : (
+                    auth.user.following.find(item => item._id === user._id) && (
+                      <i className='fas fa-circle' />
+                    )
+                  )}
                 </UserCard>
               </div>
             ))}

@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { GLOBALTYPES } from '../../redux/actions/globalTypes'
 import {
   addMessage,
+  deleteConversation,
   getMessages,
   loadMoreMessages
 } from '../../redux/actions/messageAction'
@@ -18,6 +19,7 @@ const RightSide = () => {
   const { auth, message, theme, socket } = useSelector(state => state)
   const dispatch = useDispatch()
   const { id } = useParams()
+  const navigate = useNavigate()
 
   const [user, setUser] = useState([])
   const [text, setText] = useState('')
@@ -139,12 +141,20 @@ const RightSide = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoadMore])
 
+  const handleDeleteConversation = () => {
+    dispatch(deleteConversation({ auth, id }))
+    return navigate('/message')
+  }
+
   return (
     <>
-      <div className='message_header'>
+      <div className='message_header' style={{ cursor: 'pointer' }}>
         {user.length !== 0 && (
           <UserCard user={user}>
-            <i className='fas fa-trash text-danger' />
+            <i
+              className='fas fa-trash text-danger'
+              onClick={handleDeleteConversation}
+            />
           </UserCard>
         )}
       </div>
