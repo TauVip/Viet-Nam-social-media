@@ -8,7 +8,6 @@ import UserCard from '../UserCard'
 
 const LeftSide = () => {
   const { auth, message, online } = useSelector(state => state)
-  console.log(auth, message)
   const dispatch = useDispatch()
   const navigate = useNavigate()
   const { id } = useParams()
@@ -40,6 +39,7 @@ const LeftSide = () => {
       type: MESS_TYPES.ADD_USER,
       payload: { ...user, text: '', media: [] }
     })
+    dispatch({ type: MESS_TYPES.CHECK_ONLINE_OFFLINE, payload: online })
     return navigate(`/message/${user._id}`)
   }
 
