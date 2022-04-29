@@ -47,6 +47,30 @@ const MsgDisplay = ({ user, msg, theme, data }) => {
             </div>
           ))}
         </div>
+
+        {msg.call && (
+          <button
+            className='btn d-flex align-items-center py-3'
+            style={{ background: '#eee', borderRadius: '10px' }}
+          >
+            <span
+              className='material-icons font-weight-bold mr-1'
+              style={{
+                fontSize: '2.5rem',
+                color: msg.call.times === 0 ? 'crimson' : 'green',
+                filter: theme ? 'invert(1)' : 'invert(0)'
+              }}
+            >
+              {msg.call.times === 0
+                ? msg.call.video
+                  ? 'videocam_off'
+                  : 'phone_disabled'
+                : msg.call.video
+                ? 'video_camera_front'
+                : 'call'}
+            </span>
+          </button>
+        )}
       </div>
 
       <div className='chat_time'>
