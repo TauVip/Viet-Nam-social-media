@@ -40,6 +40,7 @@ const RightSidebar = () => {
           href='https://www.youtube.com/c/DevATHTML'
           target='_blank'
           rel='noreferrer'
+          style={{ wordBreak: 'break-all' }}
         >
           https://www.youtube.com/c/DevATHTML
         </a>

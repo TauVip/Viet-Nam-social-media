@@ -1,11 +1,12 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { GLOBALTYPES } from '../../redux/actions/globalTypes'
 import { addMessage } from '../../redux/actions/messageAction'
 import Avatar from '../Avatar'
+import RingRing from '../../audio/ringring.mp3'
 
 const CallModal = () => {
-  const { call, auth, peer, socket } = useSelector(state => state)
+  const { call, auth, peer, socket, theme } = useSelector(state => state)
   const dispatch = useDispatch()
   const youVideo = useRef()
   const otherVideo = useRef()
@@ -38,17 +39,22 @@ const CallModal = () => {
     }
   }, [total])
 
-  const addCallMessage = (call, times) => {
-    const msg = {
-      sender: call.sender,
-      recipient: call.recipient,
-      text: '',
-      media: [],
-      call: { video: call.video, times },
-      createdAt: new Date().toISOString()
-    }
-    dispatch(addMessage({ msg, auth, socket }))
-  }
+  const addCallMessage = useCallback(
+    (call, times, disconnect) => {
+      if (call.recipient !== auth.user._id || disconnect) {
+        const msg = {
+          sender: call.sender,
+          recipient: call.recipient,
+          text: '',
+          media: [],
+          call: { video: call.video, times },
+          createdAt: new Date().toISOString()
+        }
+        dispatch(addMessage({ msg, auth, socket }))
+      }
+    },
+    [auth, dispatch, socket]
+  )
   const handleEndCall = () => {
     if (tracks) tracks.forEach(track => track.stop())
     let times = answer ? total : 0
@@ -62,21 +68,23 @@ const CallModal = () => {
     if (answer) setTotal(0)
     else {
       const timer = setTimeout(() => {
-        socket.emit('endCall', call)
+        socket.emit('endCall', { ...call, times: 0 })
+        addCallMessage(call, 0)
         dispatch({ type: GLOBALTYPES.CALL, payload: null })
       }, 15000)
 
       return () => clearTimeout(timer)
     }
-  }, [answer, call, dispatch, socket])
+  }, [addCallMessage, answer, call, dispatch, socket])
 
   useEffect(() => {
-    socket.on('endCallToClient', () => {
+    socket.on('endCallToClient', data => {
       if (tracks) tracks.forEach(track => track.stop())
+      addCallMessage(data, data.times)
       dispatch({ type: GLOBALTYPES.CALL, payload: null })
     })
     return () => socket.off('endCallToClient')
-  }, [dispatch, socket, tracks])
+  }, [addCallMessage, dispatch, socket, tracks])
 
   // Stream Media
   const openStream = video => {
@@ -123,15 +131,34 @@ const CallModal = () => {
   // Disconnect
   useEffect(() => {
     socket.on('callerDisconnect', () => {
-      tracks && tracks.forEach(track => track.stop())
+      if (tracks) tracks.forEach(track => track.stop())
+
+      let times = answer ? total : 0
+      addCallMessage(call, times, true)
+
       dispatch({ type: GLOBALTYPES.CALL, payload: null })
+
       dispatch({
         type: GLOBALTYPES.ALERT,
-        payload: { error: 'the user disconnect' }
+        payload: { error: `The ${call.username} disconnect` }
       })
     })
     return () => socket.off('callerDisconnect')
-  }, [dispatch, socket, tracks])
+  }, [addCallMessage, answer, call, dispatch, socket, total, tracks])
+
+  // Play - Pause Audio
+  const playAudio = newAudio => newAudio.play()
+  const pauseAudio = newAudio => {
+    newAudio.pause()
+    newAudio.currentTime = 0
+  }
+  useEffect(() => {
+    let newAudio = new Audio(RingRing)
+    if (answer) pauseAudio(newAudio)
+    else playAudio(newAudio)
+
+    return () => pauseAudio(newAudio)
+  }, [answer])
 
   return (
     <div className='call_modal'>
@@ -206,7 +233,10 @@ const CallModal = () => {
       </div>
       <div
         className='show_video'
-        style={{ opacity: answer && call.video ? '1' : '0' }}
+        style={{
+          opacity: answer && call.video ? '1' : '0',
+          filter: theme ? 'invert(1)' : 'invert(0)'
+        }}
       >
         <video ref={youVideo} className='you_video' playsInline muted />
         <video ref={otherVideo} className='other_video' playsInline />

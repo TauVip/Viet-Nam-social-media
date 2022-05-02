@@ -49,7 +49,11 @@ const Menu = () => {
             <span className='notify_length'>{notify.data.length}</span>
           </span>
 
-          <div className='dropdown-menu' aria-labelledby='navbarDropdown'>
+          <div
+            className='dropdown-menu'
+            aria-labelledby='navbarDropdown'
+            style={{ transform: 'translateX(50px)' }}
+          >
             <NotifyModal />
           </div>
         </li>
